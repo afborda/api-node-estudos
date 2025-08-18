@@ -1,0 +1,15 @@
+POST  http://localhost:3000/courses
+Content-Type: application/json
+
+{
+  "title": "Curso de Teste25553",
+  "description": "Descrição do Curso de Teste25553"
+}
+
+###
+
+GET http://localhost:3000/courses
+
+###
+
+GET http://localhost:3000/courses/9f2102fc-19de-4e64-94ed-d4888486cbe5
