@@ -236,8 +236,49 @@ O projeto inclui um arquivo `requisicoes.http` com exemplos de todas as rotas pa
 - `npm run db:migrate` - Executa migrações do banco
 - `npm run db:studio` - Abre interface visual do Drizzle Studio
 - `npm run commit` - Commit interativo com Conventional Commits
+- `npm run commit:ai` - 🤖 **Commit automático com IA**
 
 ## 🤖 Automatização de Commits
+
+Este projeto oferece **duas formas** de fazer commits automatizados:
+
+### 1. Commit Interativo (Recomendado para aprendizado)
+
+```bash
+npm run commit
+```
+
+### 2. Commit com IA (Super rápido!) 🚀
+
+```bash
+# 1. Adicione os arquivos
+git add .
+
+# 2. Execute o commit automático
+npm run commit:ai
+```
+
+A IA irá:
+- ✅ Analisar as mudanças nos arquivos
+- ✅ Gerar uma mensagem seguindo Conventional Commits
+- ✅ Mostrar a mensagem antes de confirmar
+- ✅ Fazer o commit automaticamente
+
+#### Exemplos de mensagens geradas pela IA:
+
+```bash
+# Para arquivos .md
+docs: atualizar documentação
+
+# Para arquivos .ts/.js
+feat: implementar nova funcionalidade
+
+# Para arquivos de teste
+test: adicionar testes
+
+# Para package.json
+chore: atualizar dependências
+```
 
 Este projeto utiliza **Conventional Commits** para padronizar mensagens de commit.
 

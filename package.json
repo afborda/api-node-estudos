@@ -10,6 +10,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "commit": "cz",
+    "commit:ai": "./ai-commit.sh",
     "prepare": "husky"
   },
   "config": {

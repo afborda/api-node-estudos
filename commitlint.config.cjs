@@ -18,7 +18,7 @@ module.exports = {
         'revert'    // reverter commit
       ]
     ],
-    'subject-case': [2, 'always', 'lower-case'],
+    'subject-case': [0], // Desabilita a regra de case
     'subject-max-length': [2, 'always', 72],
     'subject-min-length': [2, 'always', 3],
     'header-max-length': [2, 'always', 100]
