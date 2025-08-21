@@ -5,10 +5,12 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "db:seed": " node --env-file .env src/database/seed.ts",
     "dev": "node --import tsx --env-file .env --watch server.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
+    "test": "vitest run",
     "commit": "cz",
     "commit:ai": "./ai-commit.sh",
     "prepare": "husky"
@@ -39,6 +41,7 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@commitlint/prompt-cli": "^19.8.1",
+    "@faker-js/faker": "^9.9.0",
     "@types/node": "^24.3.0",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
@@ -47,6 +50,7 @@
     "husky": "^9.1.7",
     "pino-pretty": "^13.1.1",
     "tsx": "^4.20.4",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   }
 }

@@ -22,6 +22,27 @@
       "when": 1755371391751,
       "tag": "0002_confused_sunfire",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1755572287005,
+      "tag": "0003_woozy_fixer",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1755730577077,
+      "tag": "0004_yellow_tiger_shark",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1755731579040,
+      "tag": "0005_perpetual_elektra",
+      "breakpoints": true
     }
   ]
 }
