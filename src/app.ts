@@ -22,28 +22,25 @@ const server = fastify({
 
 
 
-if (process.env.NODE_ENV === 'development') {
-    server.register(fastifySwagger, {
-        openapi: {
-            info: {
-                title: 'Curso API Node.js',
-                description: 'API for managing courses',
-                version: '1.0.0'
-            }
-        },
-        transform: jsonSchemaTransform,
-    })
+// Documentação disponível em todos os ambientes
+server.register(fastifySwagger, {
+    openapi: {
+        info: {
+            title: 'Curso API Node.js',
+            description: 'API for managing courses',
+            version: '1.0.0'
+        }
+    },
+    transform: jsonSchemaTransform,
+})
 
-    server.register(fastifySwaggerUi, {
-        routePrefix: '/documentation',
+server.register(fastifySwaggerUi, {
+    routePrefix: '/documentation',
+})
 
-    })
-
-    server.register(scalarAPIReference, {
-        routePrefix: '/docs',
-    })
-
-}
+server.register(scalarAPIReference, {
+    routePrefix: '/docs',
+})
 
 
 server.setSerializerCompiler(serializerCompiler)

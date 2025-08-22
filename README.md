@@ -36,33 +36,20 @@ API RESTful para gerenciamento de cursos desenvolvida com **Fastify**, **TypeScr
 ### **🚀 URL de Produção**
 **API Deployed**: https://api-node-estudos.fly.dev
 
-### **Documentação Online**
-🎯 **Scalar API Reference**: https://api-node-estudos.fly.dev/docs
-📋 **Swagger UI**: https://api-node-estudos.fly.dev/documentation
-🔗 **OpenAPI Spec**: https://api-node-estudos.fly.dev/documentation/json
+### **📖 Documentação Interativa**
+🎯 **Acesse a documentação completa**: https://api-node-estudos.fly.dev/docs
+
+*Interface moderna com todos os endpoints, exemplos e possibilidade de testar diretamente no navegador!*
 
 ### **Health Check**
 ✅ **Status da API**: https://api-node-estudos.fly.dev/health
 
 ---
 
-## 📖 Documentação Local
+## 💻 Desenvolvimento Local
 
-### **Documentação Interativa (Recomendada)**
+### **Documentação Local**
 🎯 **Scalar API Reference**: `http://localhost:3000/docs`
-- Interface moderna e interativa
-- Testes diretos na interface
-- Exemplos de código automáticos
-
-### **Swagger UI (Alternativa)**
-📋 **Swagger UI**: `http://localhost:3000/documentation`
-- Interface clássica do Swagger
-- Compatível com ferramentas existentes
-
-### **OpenAPI Spec**
-🔗 **JSON Schema**: `http://localhost:3000/documentation/json`
-- Especificação completa da API
-- Para integração com outras ferramentas
 
 ### Pré-requisitos
 
