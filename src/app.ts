@@ -50,6 +50,16 @@ server.setSerializerCompiler(serializerCompiler)
 server.setValidatorCompiler(validatorCompiler)
 
 
+// Health check route (no database dependency)
+server.get('/health', async (request, reply) => {
+    return { 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV,
+        database: process.env.DATABASE_URL ? 'configured' : 'not configured'
+    }
+})
+
 server.register(createCourseRoute)
 server.register(getCoursesRoute)
 server.register(getCoursesRoutebyId)
