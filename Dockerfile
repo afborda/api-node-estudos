@@ -32,5 +32,5 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 # Expose port
 EXPOSE 3000
 
-# Run the application
-CMD ["node", "src/server.ts"]
+# Run the simple test application
+CMD ["node", "src/simple-server.js"]
