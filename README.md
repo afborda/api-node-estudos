@@ -1,6 +1,6 @@
 # 📚 Curso API Node.js
 
-API RESTful para gerenciamento de cursos desenvolvida com **Fastify**, **TypeScript**, **Drizzle ORM** e **PostgreSQL**, com documentação automática e sistema avançado de commits.
+API RESTful para gerenciamento de cursos desenvolvida com **Fastify**, **TypeScript**, **Drizzle ORM** e **PostgreSQL**, com documentação automática, sistema avançado de commits e **deploy automático no Fly.io**.
 
 ## 🚀 Tecnologias
 
@@ -12,6 +12,8 @@ API RESTful para gerenciamento de cursos desenvolvida com **Fastify**, **TypeScr
 - **[Zod](https://zod.dev/)** - Validação de esquemas TypeScript
 - **[Scalar API Reference](https://scalar.com/)** - Documentação interativa moderna
 - **[Swagger/OpenAPI](https://swagger.io/)** - Especificação da API
+- **[Fly.io](https://fly.io/)** - Plataforma de deploy e hospedagem
+- **[Neon](https://neon.tech/)** - PostgreSQL serverless
 
 ## 📋 Funcionalidades
 
@@ -23,8 +25,28 @@ API RESTful para gerenciamento de cursos desenvolvida com **Fastify**, **TypeScr
 - ✅ **Sistema de commits inteligente** com IA
 - ✅ **Conventional Commits** padronizados
 - ✅ **Hooks Git** automatizados
+- ✅ **Deploy automático** no Fly.io
+- ✅ **Autenticação JWT** para usuários
+- ✅ **Sistema de permissões** por roles
 
 ## 📖 Documentação da API
+
+## 🌐 API em Produção
+
+### **🚀 URL de Produção**
+**API Deployed**: https://api-node-estudos.fly.dev
+
+### **Documentação Online**
+🎯 **Scalar API Reference**: https://api-node-estudos.fly.dev/docs
+📋 **Swagger UI**: https://api-node-estudos.fly.dev/documentation
+🔗 **OpenAPI Spec**: https://api-node-estudos.fly.dev/documentation/json
+
+### **Health Check**
+✅ **Status da API**: https://api-node-estudos.fly.dev/health
+
+---
+
+## 📖 Documentação Local
 
 ### **Documentação Interativa (Recomendada)**
 🎯 **Scalar API Reference**: `http://localhost:3000/docs`
@@ -38,7 +60,7 @@ API RESTful para gerenciamento de cursos desenvolvida com **Fastify**, **TypeScr
 - Compatível com ferramentas existentes
 
 ### **OpenAPI Spec**
-� **JSON Schema**: `http://localhost:3000/documentation/json`
+🔗 **JSON Schema**: `http://localhost:3000/documentation/json`
 - Especificação completa da API
 - Para integração com outras ferramentas
 
@@ -84,13 +106,53 @@ npm run dev
 
 O servidor estará rodando em `http://localhost:3000`
 
-##  Endpoints
+## 🔐 Endpoints de Autenticação
+
+### 🔑 Login de Usuário
+
+**POST** `/login`
+
+Autentica um usuário e retorna um token JWT.
+
+#### Body (JSON)
+
+```json
+{
+  "email": "user@example.com",
+  "password": "senha123"
+}
+```
+
+#### Resposta de Sucesso (200)
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### Resposta de Erro (401)
+
+```json
+{
+  "message": "E-mail ou senha inválidos"
+}
+```
+
+---
+
+## 📚 Endpoints de Cursos
 
 ### 📝 Criar Curso
 
 **POST** `/courses`
 
-Cria um novo curso no sistema.
+Cria um novo curso no sistema. **Requer autenticação JWT**.
+
+#### Headers
+```
+Authorization: Bearer {jwt_token}
+```
 
 #### Body (JSON)
 
@@ -195,15 +257,54 @@ Retorna um curso específico pelo seu ID.
 
 ## 🧪 Testando a API
 
-### Usando curl
+### 🌐 Testando API em Produção
+
+```bash
+# Health check
+curl https://api-node-estudos.fly.dev/health
+
+# Login (obter token)
+curl -X POST https://api-node-estudos.fly.dev/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "admin123"
+  }'
+
+# Listar cursos
+curl https://api-node-estudos.fly.dev/courses
+
+# Criar curso (com token)
+curl -X POST https://api-node-estudos.fly.dev/courses \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "title": "Curso de Node.js",
+    "description": "Aprenda Node.js na prática"
+  }'
+
+# Buscar curso por ID
+curl https://api-node-estudos.fly.dev/courses/550e8400-e29b-41d4-a716-446655440000
+```
+
+### 💻 Testando Localmente
 
 ```bash
 # Listar cursos
 curl -X GET http://localhost:3000/courses
 
-# Criar curso
+# Login
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "admin123"
+  }'
+
+# Criar curso (com token)
 curl -X POST http://localhost:3000/courses \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{
     "title": "Curso de Node.js",
     "description": "Aprenda Node.js na prática"
@@ -223,12 +324,26 @@ O projeto inclui um arquivo `requisicoes.http` com exemplos de todas as rotas pa
 ├── src/
 │   ├── database/
 │   │   ├── client.ts      # Configuração do Drizzle
-│   │   └── schema.ts      # Esquemas do banco de dados
-│   └── routes/
-│       ├── create-course.ts    # Rota para criar curso
-│       ├── get-courses.ts      # Rota para listar cursos
-│       └── get-course-by-id.ts # Rota para buscar curso por ID
-├── server.ts              # Servidor principal
+│   │   ├── schema.ts      # Esquemas do banco de dados
+│   │   └── seed.ts        # Dados iniciais
+│   ├── routes/
+│   │   ├── create-course.ts    # Rota para criar curso
+│   │   ├── get-courses.ts      # Rota para listar cursos
+│   │   ├── get-course-by-id.ts # Rota para buscar curso por ID
+│   │   ├── login.ts            # Rota de autenticação
+│   │   └── hooks/
+│   │       ├── check-request-jwt.ts # Middleware JWT
+│   │       └── check-role-user.ts   # Middleware de roles
+│   ├── utils/
+│   │   └── get-authenticated-user-from-request.ts
+│   ├── tests/
+│   │   └── factories/       # Factory para testes
+│   ├── app.ts              # Configuração do Fastify
+│   └── server.ts           # Servidor principal
+├── drizzle/                # Migrações do banco
+├── docker-compose.yml      # Docker para desenvolvimento
+├── Dockerfile             # Container para produção
+├── fly.toml               # Configuração do Fly.io
 ├── package.json
 ├── drizzle.config.ts      # Configuração do Drizzle Kit
 └── README.md
@@ -244,14 +359,91 @@ O projeto inclui um arquivo `requisicoes.http` com exemplos de todas as rotas pa
 | title | TEXT | Título do curso (obrigatório, único) |
 | description | TEXT | Descrição do curso (obrigatório) |
 
+### Tabela: users
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| id | UUID | Identificador único (Primary Key) |
+| name | TEXT | Nome do usuário (obrigatório) |
+| email | TEXT | E-mail único (obrigatório) |
+| password_hash | TEXT | Senha criptografada (obrigatório) |
+| role | ENUM | Papel do usuário (member, admin) |
+
 ## 📜 Scripts Disponíveis
 
 - `npm run dev` - Inicia o servidor em modo desenvolvimento
 - `npm run db:generate` - Gera migrações do banco
 - `npm run db:migrate` - Executa migrações do banco
 - `npm run db:studio` - Abre interface visual do Drizzle Studio
+- `npm run db:seed` - Popula banco com dados iniciais
+- `npm test` - Executa testes com coverage
 - `npm run commit` - Commit interativo com Conventional Commits
 - `npm run commit:ai` - 🤖 **Commit automático com IA**
+
+## 🚀 Deploy no Fly.io
+
+O projeto está configurado para deploy automático no **Fly.io** com banco **Neon PostgreSQL**.
+
+### 📋 Pré-requisitos para Deploy
+
+1. **Conta no Fly.io**: https://fly.io/
+2. **Banco Neon**: https://neon.tech/
+3. **Fly CLI instalado**:
+   ```bash
+   curl -L https://fly.io/install.sh | sh
+   ```
+
+### 🔧 Configuração do Deploy
+
+1. **Login no Fly.io**:
+   ```bash
+   flyctl auth login
+   ```
+
+2. **Configurar variáveis de ambiente**:
+   ```bash
+   flyctl secrets set DATABASE_URL="postgresql://user:pass@host/db?sslmode=require&channel_binding=require"
+   flyctl secrets set JWT_SECRET="seu_jwt_secret_super_seguro"
+   flyctl secrets set NODE_ENV="production"
+   ```
+
+3. **Deploy da aplicação**:
+   ```bash
+   flyctl deploy
+   ```
+
+### ⚙️ Arquivos de Configuração
+
+- **`fly.toml`**: Configuração da aplicação no Fly.io
+- **`Dockerfile`**: Container otimizado para produção
+- **Migrações automáticas**: Executadas no `release_command`
+
+### 🔍 Verificação do Deploy
+
+Após o deploy, verifique:
+
+```bash
+# Status da aplicação
+flyctl status
+
+# Logs em tempo real
+flyctl logs
+
+# SSH no container (se necessário)
+flyctl ssh console
+```
+
+### 🐛 Troubleshooting Deploy
+
+**Erro de SSL no banco:**
+- Verifique se a string de conexão do Neon está correta
+- Confirme que `sslmode=require&channel_binding=require` está presente
+
+**Erro de porta:**
+- Verifique se `internal_port` no `fly.toml` está como `3000`
+
+**Migrações falham:**
+- Execute manualmente: `flyctl ssh console` → `npm run db:migrate`
 
 ## 🤖 Automatização de Commits
 
