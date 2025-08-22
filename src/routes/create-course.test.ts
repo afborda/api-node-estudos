@@ -1,20 +1,26 @@
 import { test, expect } from 'vitest';
 import request from 'supertest';
 import { server } from '../app.ts';
-import { fa } from 'zod/locales';
 import { faker } from '@faker-js/faker';
+import { randomUUID } from 'node:crypto';
+import { makeCourse } from '../tests/factories/make-course.ts';
 
-
-
-test('Criar um curso com sucesso', async () => {
+test('get courses', async () => {
     await server.ready();
-    const response = await request(server.server).post('/courses').set('Content-Type', 'application/json').send({
-        title: faker.lorem.words(3),
-        description: faker.lorem.sentence(),
-        duration: 30
-    });
-    expect(response.status).toBe(201);
+
+    const title = randomUUID()
+    const course = await makeCourse(title)
+
+    const response = await request(server.server).get(`/courses?search=${title}`)
+
+    expect(response.status).toBe(200)
     expect(response.body).toEqual({
-        courseID: expect.any(String),
+        courses: [{
+            id: course.id,
+            title: title,
+            description: expect.any(String),
+            enrollments: 0
+        }],
+        total: 1
     })
 })

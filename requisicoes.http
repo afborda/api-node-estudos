@@ -13,3 +13,13 @@ GET http://localhost:3000/courses
 ###
 
 GET http://localhost:3000/courses/9f2102fc-19de-4e64-94ed-d4888486cbe5
+
+###
+
+POST http://localhost:3000/sessions
+Content-Type: application/json
+
+{
+  "email": "heitor.franco6@live.com",
+  "password": "1234567"
+}

@@ -1,12 +1,12 @@
-export function makeCourse() {
-    return {
-        id: 'course-1',
-        title: 'Curso de Testes',
-        description: 'Aprenda a testar seu código',
-        duration: 3600,
-        teacher: {
-            id: 'teacher-1',
-            name: 'Professor Teste',
-        },
-    };
+import { faker } from "@faker-js/faker";
+import { db } from "../../database/client.ts";
+import { courses } from "../../database/schema.ts";
+
+export async function makeCourse(titleId?: string) {
+    const result = await db.insert(courses).values({
+        title: titleId ?? faker.lorem.sentence(),
+        description: faker.lorem.paragraph(),
+    }).returning({ id: courses.id, title: courses.title, description: courses.description });
+
+    return result[0];
 }
