@@ -8,13 +8,8 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials:{
     url: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   },
-  // Remover a configuração do studio para usar padrões
-  // studio: {
-  //   port: 4983,
-  //   host: '127.0.0.1',
-  //   verbose: true
-  // },
   out:'./drizzle',
   schema:'./src/database/schema.ts',
 });
