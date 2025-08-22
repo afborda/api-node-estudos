@@ -20,13 +20,14 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies (skip prepare script)
-RUN npm ci 
+# Install ALL dependencies for migrations (drizzle-kit is needed)
+RUN npm ci --ignore-scripts
 
 # Copy built application from builder stage
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 # Expose port
 EXPOSE 3000

@@ -9,6 +9,7 @@
     "dev": "node --import tsx --env-file .env --watch src/server.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:prod": "NODE_ENV=production drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "pretest": "dotenv -e .env.test drizzle-kit migrate",
     "test": "dotenv -e .env.test vitest run --coverage",
