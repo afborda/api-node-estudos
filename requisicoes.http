@@ -12,7 +12,8 @@ GET http://localhost:3000/courses
 
 ###
 
-GET http://localhost:3000/courses/9f2102fc-19de-4e64-94ed-d4888486cbe5
+GET http://localhost:3000/courses/3df46b01-7cbc-4134-87f6-5d34fe11f501
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwOGFmN2ZmYS1iZDdlLTQ5M2MtYmU3Yi04Y2E3Yjg1MmFiNGIiLCJyb2xlIjoic3R1ZGVudCIsImlhdCI6MTc1NTgzODUyMX0.tLO9XOoRCTKqfbu2VdRW0yFJb59ETG5cYbrGKI-6aFo
 
 ###
 
@@ -21,5 +22,5 @@ Content-Type: application/json
 
 {
   "email": "heitor.franco6@live.com",
-  "password": "1234567"
+  "password": "123456"
 }

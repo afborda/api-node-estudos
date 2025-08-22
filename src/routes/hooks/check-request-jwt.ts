@@ -1,0 +1,27 @@
+import { FastifyReply, FastifyRequest } from "fastify"
+import jwt from 'jsonwebtoken'
+
+export async function checkRequestJWT(request: FastifyRequest, reply: FastifyReply) {
+    const token = request.headers.authorization
+
+    if (!token) {
+        return reply.status(401).send({ message: 'Token não fornecido' })
+    }
+
+    if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not defined')
+    }
+
+
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET)
+
+    } catch (error) {
+        return reply.status(401).send({ message: 'Token inválido' })
+    }
+
+
+
+
+
+}

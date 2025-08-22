@@ -1,13 +1,15 @@
 // Login route for user authentication
 // Email: Heitor.Franco6@live.com
-
-
 import { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import { db } from "../database/client.ts";
-import { courses, users } from "../database/schema.ts";
+import { users } from "../database/schema.ts";
 import { eq } from "drizzle-orm";
 import { verify } from "argon2";
+import jwt from 'jsonwebtoken'
+
+
+
 
 
 export const loginRoute: FastifyPluginAsync = async (server) => {
@@ -21,11 +23,15 @@ export const loginRoute: FastifyPluginAsync = async (server) => {
                 email: z.email(),
                 password: z.string()
             }),
-            // response: {
-            //     201: z.object({
-            //         courseID: z.string().uuid()
-            //     }).describe('Retorna o ID do curso criado')
-            // }
+            response: {
+                200: z.object({
+                    message: z.string(),
+                    token: z.string()
+                }),
+                400: z.object({
+                    message: z.string()
+                })
+            }
         }
     }, async (request, reply) => {
 
@@ -48,6 +54,11 @@ export const loginRoute: FastifyPluginAsync = async (server) => {
             return reply.status(400).send({ message: 'E-mail ou senha inválidos' })
         }
 
-        return reply.status(200).send({ message: 'Login realizado com sucesso' })
+        if (!process.env.JWT_SECRET) {
+            throw new Error('JWT_SECRET is not defined')
+        }
+        const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET as string)
+
+        return reply.status(200).send({ message: 'Login realizado com sucesso', token })
     })
 }
