@@ -1,4 +1,5 @@
-//Heitor.Franco6@live.com
+// Login route for user authentication
+// Email: Heitor.Franco6@live.com
 
 
 import { FastifyPluginAsync } from "fastify";
