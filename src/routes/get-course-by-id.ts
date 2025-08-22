@@ -1,14 +1,17 @@
-import { FastifyPluginAsync } from "fastify"
+import { FastifyPluginAsyncZod } from "fastify-type-provider-zod"
 import { z } from "zod"
 import { db } from "../database/client.ts"
 import { courses } from "../database/schema.ts"
 import { eq } from "drizzle-orm"
 import { checkRequestJWT } from "./hooks/check-request-jwt.ts"
+import { getAuthenticatedUserFromRequest } from "../utils/get-authenticated-user-from-request.ts"
+import { checkUserRole } from "./hooks/check-role-user.ts"
 
-export const getCoursesRoutebyId: FastifyPluginAsync = async (server) => {
+export const getCoursesRoutebyId: FastifyPluginAsyncZod = async (server) => {
     server.get('/courses/:id', {
         preHandler: [
-            checkRequestJWT
+            checkRequestJWT,
+            checkUserRole('manager'),
         ],
         schema: {
             params: z.object({
@@ -32,7 +35,9 @@ export const getCoursesRoutebyId: FastifyPluginAsync = async (server) => {
         }
     }, async (request, reply) => {
 
-        const { id: courseId } = request.params as { id: string }
+        const user = getAuthenticatedUserFromRequest(request)
+
+        const courseId = request.params.id
 
         const course = await db
             .select()

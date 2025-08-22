@@ -14,7 +14,7 @@
     "test": "dotenv -e .env.test vitest run --coverage",
     "commit": "cz",
     "commit:ai": "./ai-commit.sh",
-    "prepare": "husky"
+    "prepare": "husky || exit 0"
   },
   "config": {
     "commitizen": {

@@ -20,6 +20,7 @@ test('POST /sessions - should return 200 for valid credentials', async () => {
 
     expect(response.status).toBe(200)
     expect(response.body).toEqual({
+        token: expect.any(String),
         message: 'Login realizado com sucesso'
     })
 })

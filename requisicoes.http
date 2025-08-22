@@ -1,9 +1,10 @@
 POST  http://localhost:3000/courses
 Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwOGFmN2ZmYS1iZDdlLTQ5M2MtYmU3Yi04Y2E3Yjg1MmFiNGIiLCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTc1NTg0MTM4NX0.thkSahybCqqHZMB0FAvB8vUpV4nR_ACTYHf_yvP8fL0
 
 {
-  "title": "Curso de Reactjs Deus",
-  "description": "Descrição do Curso de Reactjs Deus"
+  "title": "Curso de Reactjs aaaDeus12",
+  "description": "Descrição do aaaaCurso de Reactjs Deus1"
 }
 
 ###
