@@ -42,8 +42,22 @@ echo ""
 
 echo -e "${YELLOW}� Gerando mensagem de commit...${NC}"
 
-# Preparar prompt para IA (se você usa alguma CLI/API, substitua aqui a chamada)
-PROMPT="Analise as seguintes mudanças e gere uma mensagem de commit no formato Conventional Commits (tipo(escopo): descrição curta).\n\n$DIFF_OUTPUT"
+# Preparar prompt detalhado para IA
+PROMPT="Analise as seguintes mudanças de código e gere uma mensagem de commit ESPECÍFICA no formato Conventional Commits.
+
+INSTRUÇÕES:
+- Use formato: tipo(escopo): descrição detalhada
+- Seja específico sobre O QUE foi mudado, não apenas ONDE
+- Mencione funções, componentes, ou funcionalidades específicas
+- Use tipos: feat, fix, refactor, test, docs, chore, style, perf
+- Exemplos de boas mensagens:
+  * feat(auth): add JWT token validation middleware
+  * fix(login): correct password verification logic in sessions route
+  * refactor(database): extract user role enum to separate schema
+  * test(courses): add integration tests for course creation endpoint
+
+MUDANÇAS STAGED:
+$DIFF_OUTPUT"
 
 # Tenta usar uma CLI local chamada `openai-commit` (opcional). Se não existir, cai no fallback
 AI_MESSAGE=""
@@ -58,41 +72,82 @@ if [ -f "$REPO_ROOT/.env" ]; then
 fi
 
 # Suporte para Gemini (Generative Language API) via API KEY
-# Procura por GEMINI_API_KEY, GEMINI_KEY ou GENERATIVE_API_KEY nas variáveis de ambiente
-GEMINI_KEY=${GEMINI_API_KEY:-${GEMINI_KEY:-${GENERATIVE_API_KEY:-}}}
+# Procura por GEMINI_API_KEY, GEMINI_KEY, GEMINI ou GENERATIVE_API_KEY nas variáveis de ambiente
+GEMINI_KEY=${GEMINI_API_KEY:-${GEMINI_KEY:-${GEMINI:-${GENERATIVE_API_KEY:-}}}}
 if [ -n "$GEMINI_KEY" ] && [ -z "$AI_MESSAGE" ]; then
-    echo -e "${BLUE}🌌 Usando Gemini (Generative Language) para gerar mensagem...${NC}"
+    echo -e "${BLUE}🌌 Usando Gemini para gerar mensagem detalhada...${NC}"
 
     # Prefer using jq to build payload and parse response
     if command -v jq >/dev/null 2>&1; then
-        PAYLOAD=$(jq -nc --arg text "$PROMPT" '{prompt:{text:$text},temperature:0.0,maxOutputTokens:256}')
+        PAYLOAD=$(jq -nc --arg text "$PROMPT" '{prompt:{text:$text},temperature:0.1,maxOutputTokens:100}')
         ENDPOINT="https://generativelanguage.googleapis.com/v1beta2/models/text-bison-001:generate?key=$GEMINI_KEY"
         RESPONSE=$(curl -s -X POST "$ENDPOINT" -H 'Content-Type: application/json' -d "$PAYLOAD")
-        AI_MESSAGE=$(echo "$RESPONSE" | jq -r '.candidates[0].output' 2>/dev/null || true)
+        AI_MESSAGE=$(echo "$RESPONSE" | jq -r '.candidates[0].output' 2>/dev/null | head -1 || true)
     else
         # sem jq: tentar payload simples (menos robusto)
         ENDPOINT="https://generativelanguage.googleapis.com/v1beta2/models/text-bison-001:generate?key=$GEMINI_KEY"
-        RESPONSE=$(curl -s -X POST "$ENDPOINT" -H 'Content-Type: application/json' -d "{\"prompt\":{\"text\":\"$(echo "$PROMPT" | sed 's/"/\\"/g')\"},\"temperature\":0.0,\"maxOutputTokens\":256}")
+        RESPONSE=$(curl -s -X POST "$ENDPOINT" -H 'Content-Type: application/json' -d "{\"prompt\":{\"text\":\"$(echo "$PROMPT" | sed 's/"/\\"/g')\"},\"temperature\":0.1,\"maxOutputTokens\":100}")
         # extrair com sed/grep (pode falhar em casos complexos)
-        AI_MESSAGE=$(echo "$RESPONSE" | sed -n 's/.*"output":"\([^"]*\)".*/\1/p' | sed 's/\\n/\n/g' || true)
+        AI_MESSAGE=$(echo "$RESPONSE" | sed -n 's/.*"output":"\([^"]*\)".*/\1/p' | sed 's/\\n/\n/g' | head -1 || true)
+    fi
+    
+    # Limpar resposta da IA se vier com texto extra
+    if [ -n "$AI_MESSAGE" ]; then
+        AI_MESSAGE=$(echo "$AI_MESSAGE" | sed 's/^[^a-zA-Z]*//' | head -1)
     fi
 fi
 
-# Fallback simples se a CLI de IA não estiver disponível ou não retornar mensagem
+# Fallback inteligente se a CLI de IA não estiver disponível ou não retornar mensagem
 if [ -z "$AI_MESSAGE" ]; then
     FILES=$(git diff --cached --name-only)
-    if echo "$FILES" | grep -q "test"; then
-        AI_MESSAGE="test: adicionar/atualizar testes"
-    elif echo "$FILES" | grep -E "README|\.md" >/dev/null; then
-        AI_MESSAGE="docs: atualizar documentação"
+    DIFF_CONTENT=$(git diff --cached)
+    
+    # Análise mais detalhada do conteúdo
+    if echo "$DIFF_CONTENT" | grep -q "function.*test\|describe\|it(\|expect("; then
+        SPECIFIC_FILES=$(echo "$FILES" | grep -E "\.(test|spec)\." | head -1 | sed 's/.*\///' | sed 's/\.(test|spec).*//')
+        if [ -n "$SPECIFIC_FILES" ]; then
+            AI_MESSAGE="test($SPECIFIC_FILES): add/update test cases"
+        else
+            AI_MESSAGE="test: add/update test suite"
+        fi
+    elif echo "$DIFF_CONTENT" | grep -q "CREATE TABLE\|ALTER TABLE\|pgEnum\|drizzle"; then
+        if echo "$DIFF_CONTENT" | grep -q "user_roles\|pgEnum"; then
+            AI_MESSAGE="feat(database): add user roles enum and schema migration"
+        elif echo "$DIFF_CONTENT" | grep -q "password"; then
+            AI_MESSAGE="feat(auth): add password field to user schema"
+        else
+            AI_MESSAGE="feat(database): update database schema and migrations"
+        fi
+    elif echo "$DIFF_CONTENT" | grep -q "login\|sessions\|auth\|password\|verify"; then
+        if echo "$DIFF_CONTENT" | grep -q "fix\|bug\|error"; then
+            AI_MESSAGE="fix(auth): correct login authentication logic"
+        else
+            AI_MESSAGE="feat(auth): implement user login and session management"
+        fi
+    elif echo "$DIFF_CONTENT" | grep -q "coverage\|vitest\.config\|@vitest"; then
+        AI_MESSAGE="test: configure code coverage reporting with vitest"
     elif echo "$FILES" | grep -q "package\.json"; then
-        AI_MESSAGE="chore: atualizar dependências"
+        NEW_DEPS=$(echo "$DIFF_CONTENT" | grep "^\+" | grep -E "\".*\":" | head -3 | sed 's/.*"\([^"]*\)".*/\1/' | tr '\n' ', ' | sed 's/,$//')
+        if [ -n "$NEW_DEPS" ]; then
+            AI_MESSAGE="chore: add dependencies ($NEW_DEPS)"
+        else
+            AI_MESSAGE="chore: update package dependencies"
+        fi
+    elif echo "$FILES" | grep -E "README|\.md" >/dev/null; then
+        AI_MESSAGE="docs: update project documentation"
     elif echo "$FILES" | grep -q "src/routes"; then
-        AI_MESSAGE="feat(api): implementar/atualizar rotas da API"
-    elif echo "$FILES" | grep -q "src/database"; then
-        AI_MESSAGE="feat(database): atualizar esquema do banco"
+        ROUTE_FILES=$(echo "$FILES" | grep "src/routes" | sed 's/.*\///' | sed 's/\.ts$//' | head -2 | tr '\n' ', ' | sed 's/,$//')
+        AI_MESSAGE="feat(api): implement/update $ROUTE_FILES routes"
+    elif echo "$DIFF_CONTENT" | grep -q "ENV\|environment\|config"; then
+        AI_MESSAGE="chore: update environment configuration"
     else
-        AI_MESSAGE="feat: implementar melhorias"
+        # Análise por tipo de arquivo modificado
+        MAIN_FILE=$(echo "$FILES" | head -1 | sed 's/.*\///' | sed 's/\.[^.]*$//')
+        if [ -n "$MAIN_FILE" ]; then
+            AI_MESSAGE="feat($MAIN_FILE): implement functionality updates"
+        else
+            AI_MESSAGE="feat: implement code improvements and updates"
+        fi
     fi
 fi
 
